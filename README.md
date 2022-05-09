@@ -6,6 +6,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+### SECRETS
+There is a file called `.env_example`. This has a list of all the references you need to connect to things like twitch. When you start out, duplicate and rename this file to `.env`. The `.env` file is ignored on github so you can feel safe replacing that with your own tokens to access API's such as twitch and discord. I will update this later with better documentation for this process.
+
 ### `npm start`
 
 Runs the app in the development mode.\
