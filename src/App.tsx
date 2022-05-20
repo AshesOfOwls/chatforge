@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import logo from './logo.svg';
 import TwitchClient from './TwitchClient';
-import DiscordClient from './DiscordClient';
+// import DiscordClient from './DiscordClient';
 import './App.css';
 
 const twitchClient = TwitchClient();
 // const discordClient = DiscordClient();
+
+console.log('omg', twitchClient);
 
 function App() {
   useEffect(() => {
