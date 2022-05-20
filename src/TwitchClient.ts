@@ -1,7 +1,7 @@
 import tmi from 'tmi.js';
-import copypasta from './copypasta';
+import copypasta from './copypasta_renage';
 
-const ACTIVE_CHANNEL = 'm60_';
+const ACTIVE_CHANNEL = 'renagetv';
 
 const connectToTwitch = async () => {
   console.log('wtf', process.env.REACT_APP_USERNAME)
@@ -27,19 +27,14 @@ async function main() {
 
 const listenToMessages = (client: any) => {
   client.on('message', (channel: string, tags: Record<string, string>, message: string, self: boolean) => {
-    console.log('message', message)
-    // Ignore echoed messages.
     if(self) return;
 
-    console.log('ok', message)
-    if(message.toLowerCase() === 'copypasta me') {
+    if(message.toLowerCase().match(/who[']?s the best/gi)) {
       const random = Math.round(Math.random() * copypasta.length);
-      // "@alca, heya!"
+
       client.say(channel, copypasta[random]);
     }
   });
-
-  client.say(ACTIVE_CHANNEL, 'hi')
 }
 
 export default main;

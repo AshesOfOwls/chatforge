@@ -69,7 +69,6 @@
     "appId": "com.electron.myapp",
     "productName": "My Electron App",
     "files": ["build/**/*", "node_modules/**/*"],
-    "extends": "build",
     "directories": {
       "buildResources": "public"
     },
