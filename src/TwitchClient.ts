@@ -33,6 +33,7 @@ const listenToMessages = (client: any) => {
       const random = Math.round(Math.random() * copypasta.length);
 
       client.say(channel, copypasta[random]);
+      client.say(ACTIVE_CHANNEL, 'hi im a bot')
     }
   });
 }
