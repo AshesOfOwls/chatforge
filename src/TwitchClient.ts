@@ -1,25 +1,45 @@
-import { ClientCredentialsAuthProvider } from '@twurple/auth';
-import { ApiClient } from '@twurple/api';
+import tmi from 'tmi.js';
+import copypasta from './copypasta';
 
-const clientId = process.env.REACT_APP_TWITCH_CLIENT_ID || '';
-const clientSecret = process.env.REACT_APP_TWITCH_CLIENT_SECRET || '';
+const ACTIVE_CHANNEL = 'm60_';
 
-const authProvider = new ClientCredentialsAuthProvider(clientId, clientSecret);
+const connectToTwitch = async () => {
+  console.log('wtf', process.env.REACT_APP_USERNAME)
+  const client = new tmi.Client({
+    options: { debug: true },
+    identity: {
+      username: process.env.REACT_APP_USERNAME,
+      password: process.env.REACT_APP_OAUTH
+    },
+    channels: [ACTIVE_CHANNEL]
+  });
+  
+  await client.connect();
 
-const apiClient = new ApiClient({ authProvider });
+  return client;
+};
 
 async function main() {
-  const isLive = await isStreamLive('shroud');
+  const client = await connectToTwitch();
 
-  console.log("is it live?", isLive);
+  listenToMessages(client);
 }
 
-async function isStreamLive(userName: string) {
-	const user = await apiClient.users.getUserByName(userName);
-	if (!user) {
-		return false;
-	}
-	return await apiClient.streams.getStreamByUserId(user.id) !== null;
+const listenToMessages = (client: any) => {
+  client.on('message', (channel: string, tags: Record<string, string>, message: string, self: boolean) => {
+    console.log('message', message)
+    // Ignore echoed messages.
+    if(self) return;
+
+    console.log('ok', message)
+    if(message.toLowerCase() === 'copypasta me') {
+      const random = Math.round(Math.random() * copypasta.length);
+      // "@alca, heya!"
+      client.say(channel, copypasta[random]);
+    }
+  });
+
+  client.say(ACTIVE_CHANNEL, 'hi')
 }
 
 export default main;
