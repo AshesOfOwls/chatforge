@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import logo from './logo.svg';
+import TwitchClient from './TwitchClient';
 import './App.css';
 
+const client = TwitchClient();
+
 function App() {
+  useEffect(() => {
+    
+  });
+
   return (
     <div className="App">
       <header className="App-header">
