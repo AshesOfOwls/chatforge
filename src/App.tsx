@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import logo from './logo.svg';
 import TwitchClient from './TwitchClient';
+import DiscordClient from './DiscordClient';
 import './App.css';
 
-const client = TwitchClient();
+const twitchClient = TwitchClient();
+// const discordClient = DiscordClient();
 
 function App() {
   useEffect(() => {
