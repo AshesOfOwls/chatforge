@@ -1,18 +1,25 @@
 import { useEffect } from 'react';
 import logo from './logo.svg';
 import TwitchClient from './TwitchClient';
+import { useBeforeunload } from 'react-beforeunload';
 // import DiscordClient from './DiscordClient';
 import './App.css';
 
-const twitchClient = TwitchClient();
-// const discordClient = DiscordClient();
-
-console.log('omg', twitchClient);
+let twitchClient: any = null;
 
 function App() {
   useEffect(() => {
-    
+    if (!twitchClient) {
+      twitchClient = TwitchClient();
+    }
   });
+
+  useBeforeunload(() => {
+    if (twitchClient) {
+      twitchClient.disconnect();
+      twitchClient = null;
+    }
+  })
 
   return (
     <div className="App">
