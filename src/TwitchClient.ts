@@ -151,7 +151,6 @@ const messageResponses: TMessageResponse[] = [{
 
 const listenToMessages = (client: any) => {
   client.on('message', (channel: string, tags: Record<string, string>, message: string, self: boolean) => {
-    console.log('m', message, tags);
     if(self) return;
 
     const sender = tags['display-name'];
