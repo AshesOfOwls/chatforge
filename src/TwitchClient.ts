@@ -83,6 +83,7 @@ type TMessageResponse = {
 const messageResponses: TMessageResponse[] = [{
   regex: /^1$/i,
   responses: ['1'],
+  repeatable: true,
 }, {
   regex: /^LUL$|^LOL$|^HA$|^m60LUL$/i,
   responses: ['LUL', 'LOL', 'lmfao', 'Hahaha', 'LULW', 'LMFAO', 'lol', 'lul', 'HAHAHA'],
@@ -150,6 +151,7 @@ const messageResponses: TMessageResponse[] = [{
 
 const listenToMessages = (client: any) => {
   client.on('message', (channel: string, tags: Record<string, string>, message: string, self: boolean) => {
+    console.log('m', message, tags);
     if(self) return;
 
     const sender = tags['display-name'];
