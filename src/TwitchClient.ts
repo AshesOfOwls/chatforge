@@ -7,6 +7,7 @@ const COPYPASTA_MINUTE_DELAY = 3;
 const STALE_MESSAGE_DELAY = 45;
 const MESSAGE_MAX_SKIP = 20;
 const MESSAGE_MAX_DELAY = 5;
+const REPEATABLE_MESSAGE_DELAY = 1.5;
 
 let ACTIVE_CLIENT: any = null;
 
@@ -27,18 +28,34 @@ const connectToTwitch = async () => {
   return client;
 };
 
+const countTo = (limit: number) => {
+  const startTime = new Date();
+  let currentNumber = 1;
+  const countingInterval = setInterval(() => {
+    if (differenceInSeconds(new Date(), startTime) > Math.random() * 10) {
+      say(`${currentNumber}`);
+      currentNumber++;
+    }
+
+    if (currentNumber === limit + 1) {
+      clearInterval(countingInterval);
+    }
+  }, 3000)
+}
+
 async function main() {
   const client = await connectToTwitch();
   const clientStartDate = new Date();
 
   listenToMessages(client);
+  // countTo(10);
+  // say('LUL')
 
   setInterval(() => {
     const seconds = differenceInSeconds(new Date(), clientStartDate) % 60;
     const minutes = differenceInMinutes(new Date(), clientStartDate);
     console.log("Time since start", `${minutes}:${seconds}`)
   }, 1000 * 10)
-
   
   setInterval(() => {
     sayCopypasta();
@@ -67,7 +84,7 @@ const messageResponses: TMessageResponse[] = [{
   regex: /^1$/i,
   responses: ['1'],
 }, {
-  regex: /^LUL$|^LOL$|^HA$/i,
+  regex: /^LUL$|^LOL$|^HA$|^m60LUL$/i,
   responses: ['LUL', 'LOL', 'lmfao', 'Hahaha', 'LULW', 'LMFAO', 'lol', 'lul', 'HAHAHA'],
 }, {
   regex: /^9\/11$/i,
@@ -75,6 +92,7 @@ const messageResponses: TMessageResponse[] = [{
 }, {
   regex: /^Clap/gi,
   responses: ['Clap'],
+  repeatable: true,
 }, {
   regex: /^poggies/gi,
   responses: ['POGGIES'],
@@ -87,6 +105,13 @@ const messageResponses: TMessageResponse[] = [{
 }, {
   regex: /duDudu/g,
   responses: ['duDudu'],
+  repeatable: true,
+}, {
+  regex: /taco bell/g,
+  responses: ['TACO BELL!'],
+}, {
+  regex: /just dance/g,
+  responses: ['JUST DANCE POGGIES'],
 }, {
   regex: /^!raid/gi,
   responses: ['!raid'],
@@ -98,8 +123,16 @@ const messageResponses: TMessageResponse[] = [{
   responses: ['catJAM'],
   repeatable: true,
 }, {
+  regex: /^rickpls/gi,
+  responses: ['RickPls'],
+  repeatable: true,
+}, {
   regex: /^peped/gi,
   responses: ['pepeD'],
+  repeatable: true,
+}, {
+  regex: /^partykirby/gi,
+  responses: ['PartyKirby'],
   repeatable: true,
 }, {
   regex: /^pepehands/gi,
@@ -107,6 +140,12 @@ const messageResponses: TMessageResponse[] = [{
 }, {
   regex: /^D:|^m60d/gi,
   responses: ['D:'],
+}, {
+  regex: /^yeah shit cum|^yea shit cum/gi,
+  responses: ['YEA shit cum YEA shit cum YEA shit cum YEA shit cum YEA shit cum'],
+}, {
+  regex: /^m60Star/gi,
+  responses: ['m60Star m60Star m60Star m60Star m60Star m60Star m60Star'],
 }];
 
 const listenToMessages = (client: any) => {
@@ -159,7 +198,7 @@ const isMessageRecent = (message: string) => {
   const messageResponse = getResponseFromMessage(message);
 
   if (messageResponse && messageResponse.repeatable) {
-    return timeDifference < Math.random() * STALE_MESSAGE_DELAY;
+    return timeDifference < Math.random() * REPEATABLE_MESSAGE_DELAY;
   } 
 
   return timeDifference < STALE_MESSAGE_DELAY;
