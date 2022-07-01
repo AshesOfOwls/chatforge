@@ -100,7 +100,12 @@ const pasta = [
 `greekgodx is basic A NOBODY from britain 400 pounds who sniped loltyler1 in video games and after speaking to him over the mic for a few months he started streaming.. after 4 months with no face came and a huge tyler1 soddapopping following he started streaming facecam and lost 200 pounds and does irl and is super nice and is firends with mitch jones and trainwrecks, these are ices friends but he hates his firends , they all talk about andys everyday and scuffed`,
 `the trolls keep trying to get me banned by getting me to say something that gets me banned. they fail i just put them on ignore. they are very entertaining with the ignorance`,
 `Bits are not a currency. Bits are a fun, exciting new way for you to support your favorite streamers by cheering in the chat. `,
-`Can you please put that finger away, its right in my face and is extremely phallic`
+`Can you please put that finger away, its right in my face and is extremely phallic`,
+`So to be a great president you have to give everybody covid-19 and give 80% of the country their job losses, and don't forget we didnt have any toilet paper`,
+`Did anyone else realize that Amber Heard and Johnny Depp are just like amongus? Think about it: They met on a movie set (crewmates), Amber Heard lies about domestic abuse (sussy imposter), Amber Heard broke his phone while he was recording her (sabotaging comms). Amber Heard also dated Elon Musk, who went to space! And she got Johnny Depp Ejected from his house, just like in Amongus. The whole Amber Heard Johnny Depp thing is basically Amongus! Incredible, I never realized it until now!`,
+`#BelieveAllWomen`,
+`ImTyping`,
+`Hi m60_ - It’s me, your only Viewer. For Months I have created the illusion that you are streaming to a large audience. But here’s the truth: all these people in the chat are me. And now, for you to be convinced of this, I will send this message from all my accounts. m60P`,
 ]
 
 export default pasta;
