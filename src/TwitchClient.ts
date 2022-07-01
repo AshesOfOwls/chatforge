@@ -1,22 +1,28 @@
 import tmi from 'tmi.js';
 import copypasta from './copypasta';
 import { isBefore, differenceInMinutes, differenceInSeconds, addSeconds } from 'date-fns';
+import responses from './responses';
 
-const ACTIVE_CHANNEL = 'm60_';
-const COPYPASTA_MINUTE_DELAY = 3;
-const STALE_MESSAGE_DELAY = 45;
-const MESSAGE_MAX_SKIP = 20;
-const MESSAGE_MAX_DELAY = 5;
-const REPEATABLE_MESSAGE_DELAY = 1.5;
+const COPYPASTA_MINUTE_DELAY = 10;
+const STALE_MESSAGE_DELAY = 20;
+const MESSAGE_MAX_SKIP = 10;
+const MESSAGE_MAX_DELAY = 3;
+const REPEATABLE_MESSAGE_DELAY = 1;
 
+let intervals: any[] = [];
+
+let ACTIVE_CHANNEL = 'm60_';
 let ACTIVE_CLIENT: any = null;
+let ENABLE_COPYPASTA: boolean = false;
 
-const connectToTwitch = async () => {
+const connectToTwitch = async (oauth?: string) => {
+  intervals.forEach((interval) => clearInterval(interval));
+  intervals = [];
+
   const client = new tmi.Client({
     options: { debug: true },
     identity: {
-      username: process.env.REACT_APP_USERNAME,
-      password: process.env.REACT_APP_OAUTH
+      password: oauth || process.env.REACT_APP_OAUTH
     },
     channels: [ACTIVE_CHANNEL]
   });
@@ -28,9 +34,9 @@ const connectToTwitch = async () => {
   return client;
 };
 
-const countTo = (limit: number) => {
+const countTo = (limit: number, start: number = 0) => {
   const startTime = new Date();
-  let currentNumber = 1;
+  let currentNumber = start + 1;
   const countingInterval = setInterval(() => {
     if (differenceInSeconds(new Date(), startTime) > Math.random() * 10) {
       say(`${currentNumber}`);
@@ -41,31 +47,64 @@ const countTo = (limit: number) => {
       clearInterval(countingInterval);
     }
   }, 3000)
+  intervals.push(countingInterval);
 }
 
-async function main() {
-  const client = await connectToTwitch();
+const sayAlphabet = () => {
+  const alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+  const startTime = new Date();
+  let currentLetterIndex = 0;
+  const alphabetInterval = setInterval(() => {
+    if (differenceInSeconds(new Date(), startTime) > Math.random() * 10) {
+      const currentLetter = alphabet[currentLetterIndex]
+      say(`${currentLetter}`);
+      currentLetterIndex++;
+    }
+
+    if (currentLetterIndex === alphabet.length - 1) {
+      clearInterval(alphabetInterval);
+    }
+  }, 3000)
+  intervals.push(alphabetInterval);
+}
+
+async function main(activeChannel?: string, oauth?: string, enableCopypasta: any = false) {
+  if (activeChannel) {
+    ACTIVE_CHANNEL = activeChannel;
+  }
+  
+  ENABLE_COPYPASTA = enableCopypasta;
+
+  const client = await connectToTwitch(oauth);
   const clientStartDate = new Date();
 
   listenToMessages(client);
-  // countTo(10);
-  // say('LUL')
 
-  setInterval(() => {
+  const timeSinceStartInterval = setInterval(() => {
     const seconds = differenceInSeconds(new Date(), clientStartDate) % 60;
     const minutes = differenceInMinutes(new Date(), clientStartDate);
     console.log("Time since start", `${minutes}:${seconds}`)
   }, 1000 * 10)
-  
-  setInterval(() => {
-    sayCopypasta();
-  }, 1000 * 60 * COPYPASTA_MINUTE_DELAY);
+  intervals.push(timeSinceStartInterval);
 
-  setInterval(() => {
+  let copypastaInterval = null;
+  if (ENABLE_COPYPASTA) {
+    copypastaInterval = setInterval(() => {
+      sayCopypasta();
+    }, 1000 * 60 * COPYPASTA_MINUTE_DELAY);
+    intervals.push(copypastaInterval);
+  }
+
+  const enqueueInterval = setInterval(() => {
     sayEnqueuedMessage();
   }, 1000);
+  intervals.push(enqueueInterval);
 
-  return client;
+  return {
+    client,
+    queuedMessages,
+    previousMessages
+  };
 }
 
 const enqueueResponse = (receivedMessage: string, messageMatch: RegExp, responseMessage: string) => {
@@ -80,80 +119,17 @@ type TMessageResponse = {
   repeatable?: boolean,
 }
 
-const messageResponses: TMessageResponse[] = [{
-  regex: /^1$/i,
-  responses: ['1'],
-  repeatable: true,
-}, {
-  regex: /^LUL$|^LOL$|^HA$|^m60LUL$/i,
-  responses: ['LUL', 'LOL', 'lmfao', 'Hahaha', 'LULW', 'LMFAO', 'lol', 'lul', 'HAHAHA'],
-}, {
-  regex: /^9\/11$/i,
-  responses: ['11/11'],
-}, {
-  regex: /^Clap/gi,
-  responses: ['Clap'],
-  repeatable: true,
-}, {
-  regex: /^poggies/gi,
-  responses: ['POGGIES'],
-}, {
-  regex: /^pogchamp/gi,
-  responses: ['PogChamp'],
-}, {
-  regex: /^PepeHands/gi,
-  responses: ['PepeHands'],
-}, {
-  regex: /duDudu/g,
-  responses: ['duDudu'],
-  repeatable: true,
-}, {
-  regex: /taco bell/g,
-  responses: ['TACO BELL!'],
-}, {
-  regex: /just dance/g,
-  responses: ['JUST DANCE POGGIES'],
-}, {
-  regex: /^!raid/gi,
-  responses: ['!raid'],
-}, {
-  regex: /^my poops/gi,
-  responses: ['MY POOPS'],
-}, {
-  regex: /^catjam/gi,
-  responses: ['catJAM'],
-  repeatable: true,
-}, {
-  regex: /^rickpls/gi,
-  responses: ['RickPls'],
-  repeatable: true,
-}, {
-  regex: /^peped/gi,
-  responses: ['pepeD'],
-  repeatable: true,
-}, {
-  regex: /^partykirby/gi,
-  responses: ['PartyKirby'],
-  repeatable: true,
-}, {
-  regex: /^pepehands/gi,
-  responses: ['pepeHands'],
-}, {
-  regex: /^D:|^m60d/gi,
-  responses: ['D:'],
-}, {
-  regex: /^yeah shit cum|^yea shit cum/gi,
-  responses: ['YEA shit cum YEA shit cum YEA shit cum YEA shit cum YEA shit cum'],
-}, {
-  regex: /^m60Star/gi,
-  responses: ['m60Star m60Star m60Star m60Star m60Star m60Star m60Star'],
-}];
+const messageResponses: TMessageResponse[] = responses;
 
 const listenToMessages = (client: any) => {
   client.on('message', (channel: string, tags: Record<string, string>, message: string, self: boolean) => {
     if(self) return;
 
     const sender = tags['display-name'];
+
+    if (['ashesofowls123', 'channybee_'].includes(sender.toLowerCase()) && Math.random() < 0.9) {
+      return;
+    }
 
     const response = messageResponses.find((mr) => message.match(mr.regex));
 
@@ -163,7 +139,12 @@ const listenToMessages = (client: any) => {
     }
 
     enqueueResponse(message, /channybee/gi, `Omg hi @${sender}!`);
+    enqueueResponse(message, /happy birthday/gi, `Happy Bday @m60_!`);
   });
+
+  client.on('notice', (channel: string, tags: Record<string, string>, message: string, self: boolean) => {
+    console.log('on notice', channel, tags, message)
+  })
 }
 
 type TQueuedMessage = {
@@ -193,7 +174,7 @@ const isMessageRecent = (message: string) => {
   const recentSameMessage = getRecentMessage(message);
 
   if (!recentSameMessage) return false;
-  
+
   const timeDifference = differenceInSeconds(new Date(), recentSameMessage.time);
 
   const messageResponse = getResponseFromMessage(message);
@@ -216,14 +197,19 @@ const enqueueMessage = (message: string) => {
     return;
   }
 
+  if (Math.random() < 0.5) {
+    return;
+  }
 
+  // const response = getResponseFromMessage(message);
+  // const skipDelay = response?.repeatable ? REPEATABLE_MESSAGE_DELAY : MESSAGE_MAX_SKIP;
   if(differenceInSeconds(new Date(), timeSinceLastMessage) < Math.random() * MESSAGE_MAX_SKIP) {
     return;
   } 
 
   timeSinceLastMessage = new Date();
 
-  const randomDelay = (Math.random() * MESSAGE_MAX_DELAY) + 1;
+  const randomDelay = (Math.random() * MESSAGE_MAX_DELAY) + (message.length * .05);
   queuedMessages.push({
     message,
     time: addSeconds(new Date(), randomDelay),
