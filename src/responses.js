@@ -2,6 +2,10 @@ const responses = [{
   regex: /^1$/i,
   responses: ['1'],
   repeatable: true,
+},
+{
+  regex: /twitter challenge/gi,
+  responses: ['I completed the twitter challenge! SeemsGood']
 }, {
   regex: /^LUL$|^LOL$|^HA$|^m60LUL$|^KEKW$/i,
   responses: ['LUL', 'LOL', 'lmfao', 'Hahaha', 'LULW', 'LMFAO', 'lol', 'lul', 'HAHAHA', 'KEKW', 'm60LUL'],
